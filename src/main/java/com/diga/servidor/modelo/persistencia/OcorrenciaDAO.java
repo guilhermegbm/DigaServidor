@@ -16,10 +16,12 @@ import com.diga.servidor.modelo.beans.Ocorrencia;
 import com.diga.servidor.modelo.beans.UsuarioCurteOcorrencia;
 import com.diga.servidor.modelo.beans.UsuarioReportaOcorrencia;
 import com.diga.servidor.utils.DBConnection;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.Base64;
 import javax.sql.rowset.serial.SerialBlob;
+import sun.misc.BASE64Decoder;
 
 /**
  *
@@ -32,7 +34,8 @@ public class OcorrenciaDAO {
         PreparedStatement stmt = null;
         
         try {
-            byte[] byteDecodificado = Base64.getDecoder().decode(o.getFotoOcorrencia());
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] byteDecodificado = decoder.decodeBuffer(o.getFotoOcorrencia());
             Blob b = new SerialBlob(byteDecodificado);
             
             conn = DBConnection.getConnection();
@@ -59,6 +62,9 @@ public class OcorrenciaDAO {
             if (erro.equals("0")) throw new SQLException("Erro na inserção das ocorrencia_possui_tags");
             
 
+        } catch (IOException e) {
+            System.out.println("Erro na transformação da imagem");
+            return "0";
         } catch (SQLException e) {
             System.out.println("Erro ao conectar bd: " + e.getLocalizedMessage());
             return "0";
