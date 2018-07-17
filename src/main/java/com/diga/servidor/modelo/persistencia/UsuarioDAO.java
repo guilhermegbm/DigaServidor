@@ -6,8 +6,8 @@
 package com.diga.servidor.modelo.persistencia;
 
 import com.diga.servidor.modelo.beans.Usuario;
-import com.diga.servidor.utils.ConnectionFactory;
 import com.diga.servidor.utils.DBConnection;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import javax.sql.rowset.serial.SerialBlob;
+import sun.misc.BASE64Decoder;
 
 /**
  *
@@ -82,7 +83,9 @@ public class UsuarioDAO {
         PreparedStatement stmt = null;
         
         try {
-            byte[] byteDecodificado = Base64.getDecoder().decode(u.getFoto());
+            BASE64Decoder decoder = new BASE64Decoder();
+            //byte[] byteDecodificado = Base64.getDecoder().decode(u.getFoto());
+            byte[] byteDecodificado = decoder.decodeBuffer(u.getFoto());
             Blob b = new SerialBlob(byteDecodificado);
             
             conn = DBConnection.getConnection();
@@ -100,8 +103,14 @@ public class UsuarioDAO {
             
             stmt.executeUpdate();
             
+        } catch (IOException e) {
+            System.out.println("Erro ao Formatar foto: " + e.getLocalizedMessage());
+            return "0";
         } catch (SQLException e) {
             System.out.println("Erro ao conectar bd: " + e.getLocalizedMessage());
+            return "0";
+        } catch (RuntimeException e) {
+            System.out.println("Erro fatal: " + e.getLocalizedMessage());
             return "0";
         } finally {
             try { if (stmt != null) stmt.close(); } catch (SQLException e) {};

@@ -9,7 +9,6 @@ import com.diga.servidor.controle.ControleUsuario;
 import com.diga.servidor.modelo.beans.Usuario;
 import com.diga.servidor.modelo.persistencia.UsuarioDAO;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -23,7 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Guilherme
  */
 @WebServlet(name = "FazSignin", urlPatterns = {"/diga_api/FazSignin"}, initParams = {
-    @WebInitParam(name = "usuario", value = "")})
+    @WebInitParam(name = "usuario", value = "")
+    ,@WebInitParam(name = "fotoUsuario", value = "")})
 public class FazSignin extends HttpServlet {
 
     @Override
@@ -41,7 +41,8 @@ public class FazSignin extends HttpServlet {
             String fotoUsuario = request.getParameter("fotoUsuario");
 
             u.setFoto(fotoUsuario);
-            
+            u.setTipoUsuario(1);
+
             if (!UsuarioDAO.nomeUsuarioExiste(u.getNomeUsuario())) {
                 response.setHeader("nUsuExiste", "0");
 
