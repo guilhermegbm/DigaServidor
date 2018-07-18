@@ -22,8 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Guilherme
  */
 @WebServlet(name = "FazSignin", urlPatterns = {"/diga_api/FazSignin"}, initParams = {
-    @WebInitParam(name = "usuario", value = "")
-    ,@WebInitParam(name = "fotoUsuario", value = "")})
+    @WebInitParam(name = "usuario", value = "")})
 public class FazSignin extends HttpServlet {
 
     @Override
@@ -38,9 +37,6 @@ public class FazSignin extends HttpServlet {
         Usuario u = new Gson().fromJson(request.getParameter("usuario"), Usuario.class);
 
         if (u != null) {
-            String fotoUsuario = request.getParameter("fotoUsuario");
-
-            u.setFoto(fotoUsuario);
             u.setTipoUsuario(1);
 
             if (!UsuarioDAO.nomeUsuarioExiste(u.getNomeUsuario())) {
