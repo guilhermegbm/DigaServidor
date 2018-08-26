@@ -37,7 +37,7 @@ public class FazSignin extends HttpServlet {
         Usuario u = new Gson().fromJson(request.getParameter("usuario"), Usuario.class);
 
         if (u != null) {
-            u.setTipoUsuario(1);
+            u.setAdm(true);
 
             if (!UsuarioDAO.nomeUsuarioExiste(u.getNomeUsuario())) {
                 response.setHeader("nUsuExiste", "0");
