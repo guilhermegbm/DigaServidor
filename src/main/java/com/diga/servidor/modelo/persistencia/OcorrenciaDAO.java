@@ -147,7 +147,7 @@ public class OcorrenciaDAO {
         try {
             conn = DBConnection.getConnection();
             
-            stmt = conn.prepareStatement("select * " +
+            stmt = conn.prepareStatement("select ocoCodigo, ocoTitulo, ocoFotoOcorrencia, ocoFotoResolvida, ocoNumCurtidas, ocoNumReports, ocoResolvida " +
                     "from ocorrencia " +
                     "order by ocoDataPostagem DESC " +
                     "LIMIT ?,?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -164,30 +164,18 @@ public class OcorrenciaDAO {
                 Ocorrencia o = new Ocorrencia();
                 o.setCodigo(rs.getInt(1));
                 o.setTitulo(rs.getString(2));
-                o.setDescricao(rs.getString(3));
-                o.setLatitude(rs.getDouble(4));
-                o.setLongitude(rs.getDouble(5));
-                o.setEndereco(rs.getString(6));
                 
-                Blob fotoOcorrencia = rs.getBlob(7);
+                Blob fotoOcorrencia = rs.getBlob(3);
                 o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
                 
-                o.setDataPostagem(rs.getDate(8));
-                o.setDataResolvida(rs.getDate(9));
-                
-                Blob fotoResolvida = rs.getBlob(10);
+                Blob fotoResolvida = rs.getBlob(4);
                 if (fotoResolvida != null ){
                     o.setFotoResolvida(Base64.getEncoder().encodeToString(fotoResolvida.getBytes(1, (int) fotoResolvida.length())));
                 }
                 
-                o.setResolvida(rs.getBoolean(11));
-                o.setNumCurtidas(rs.getInt(12));
-                o.setNumReports(rs.getInt(13));
-                o.setCategoria(rs.getInt(14));
-                o.setSituacao(rs.getInt(15));
-                o.setUsuario(rs.getInt(16));
-                
-                o.setTags(TagDAO.listarTagsPorOcorrencia(rs.getInt(1)));
+                o.setNumCurtidas(rs.getInt(5));
+                o.setNumReports(rs.getInt(6));
+                o.setResolvida(rs.getBoolean(7));
                 
                 o.setUsuarioAtualCurtiu(OcorrenciaDAO.usuarioAtualCurtiu(rs.getInt(1), usuCodigo));
                 o.setUsuarioAtualReportou(OcorrenciaDAO.usuarioAtualReportou(rs.getInt(1), usuCodigo));
@@ -377,5 +365,62 @@ public class OcorrenciaDAO {
             try { if (conn != null) conn.close(); } catch (SQLException e) {};
         }
         return false;
+    }
+    
+    public static Ocorrencia pegaDadosPorCodigo (int codigoOcorrencia, int usuCodigo) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        Ocorrencia ocorrencia = new Ocorrencia();
+
+        try {
+            conn = DBConnection.getConnection();
+            stmt = conn.prepareStatement("select * from ocorrencia where ocoCodigo = ?");
+            stmt.setInt(1, codigoOcorrencia);
+            
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Ocorrencia o = new Ocorrencia();
+                o.setCodigo(rs.getInt(1));
+                o.setTitulo(rs.getString(2));
+                o.setDescricao(rs.getString(3));
+                o.setLatitude(rs.getDouble(4));
+                o.setLongitude(rs.getDouble(5));
+                o.setEndereco(rs.getString(6));
+                
+                Blob fotoOcorrencia = rs.getBlob(7);
+                o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
+                
+                o.setDataPostagem(rs.getDate(8));
+                o.setDataResolvida(rs.getDate(9));
+                
+                Blob fotoResolvida = rs.getBlob(10);
+                if (fotoResolvida != null ){
+                    o.setFotoResolvida(Base64.getEncoder().encodeToString(fotoResolvida.getBytes(1, (int) fotoResolvida.length())));
+                }
+                
+                o.setResolvida(rs.getBoolean(11));
+                o.setNumCurtidas(rs.getInt(12));
+                o.setNumReports(rs.getInt(13));
+                o.setCategoria(rs.getInt(14));
+                o.setSituacao(rs.getInt(15));
+                o.setUsuario(rs.getInt(16));
+                
+                o.setTags(TagDAO.listarTagsPorOcorrencia(rs.getInt(1)));
+                
+                o.setUsuarioAtualCurtiu(OcorrenciaDAO.usuarioAtualCurtiu(rs.getInt(1), usuCodigo));
+                o.setUsuarioAtualReportou(OcorrenciaDAO.usuarioAtualReportou(rs.getInt(1), usuCodigo));
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("Erro ao conectar bd: " + e.getLocalizedMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {};
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
+            try { if (conn != null) conn.close(); } catch (SQLException e) {};
+        }
+        return ocorrencia;
     }
 }
