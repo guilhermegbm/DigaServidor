@@ -185,4 +185,9 @@ public class Ocorrencia {
     public void setUsuarioAtualReportou(boolean usuarioAtualReportou) {
         this.usuarioAtualReportou = usuarioAtualReportou;
     }
+
+    @Override
+    public String toString() {
+        return "Ocorrencia{" + "codigo=" + codigo + ", titulo=" + titulo + ", descricao=" + descricao + ", latitude=" + latitude + ", longitude=" + longitude + ", endereco=" + endereco + ", fotoOcorrencia=" + fotoOcorrencia + ", dataPostagem=" + dataPostagem + ", fotoResolvida=" + fotoResolvida + ", dataResolvida=" + dataResolvida + ", resolvida=" + resolvida + ", numCurtidas=" + numCurtidas + ", numReports=" + numReports + ", usuarioAtualCurtiu=" + usuarioAtualCurtiu + ", usuarioAtualReportou=" + usuarioAtualReportou + ", categoria=" + categoria + ", situacao=" + situacao + ", usuario=" + usuario + ", tags=" + tags + '}';
+    }
 }
