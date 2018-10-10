@@ -384,7 +384,7 @@ public class OcorrenciaDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
-        Ocorrencia ocorrencia = new Ocorrencia();
+        Ocorrencia o = new Ocorrencia();
 
         try {
             conn = DBConnection.getConnection();
@@ -394,7 +394,6 @@ public class OcorrenciaDAO {
             rs = stmt.executeQuery();
 
             while (rs.next()) {
-                Ocorrencia o = new Ocorrencia();
                 o.setCodigo(rs.getInt(1));
                 o.setTitulo(rs.getString(2));
                 o.setDescricao(rs.getString(3));
@@ -433,6 +432,6 @@ public class OcorrenciaDAO {
             try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
             try { if (conn != null) conn.close(); } catch (SQLException e) {};
         }
-        return ocorrencia;
+        return o;
     }
 }
