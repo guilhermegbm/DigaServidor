@@ -6,6 +6,7 @@
 package com.diga.servidor.servlets;
 
 import com.diga.servidor.controle.ControleOcorrencia;
+import com.diga.servidor.modelo.beans.Ocorrencia;
 import com.diga.servidor.modelo.persistencia.UsuarioDAO;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -30,20 +31,22 @@ public class PegaDadosPorCodigo extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         if (UsuarioDAO.autenticaUsuario(request.getParameter("nomeUsuario"), request.getParameter("senha"))) {
             response.setHeader("auth", "1");
-            
+
             int usuCodigo = UsuarioDAO.listarUsuarioPorNomeUsuarioESenha(request.getParameter("nomeUsuario"), request.getParameter("senha")).getCodigo();
             
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().println(new Gson().toJson(ControleOcorrencia.pegaDadosPorCodigo(Integer.parseInt(request.getParameter("codigoOcorrencia")), usuCodigo)));
+        } else {
+            response.setHeader("auth", "0");
         }
     }
 
