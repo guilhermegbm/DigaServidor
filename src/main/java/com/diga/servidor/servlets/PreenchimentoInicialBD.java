@@ -29,6 +29,7 @@ public class PreenchimentoInicialBD extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        System.out.println("Passou PreenchimentoInicialBD");
     }
 
     @Override
@@ -36,10 +37,14 @@ public class PreenchimentoInicialBD extends HttpServlet {
             throws ServletException, IOException {
 
         List<Object> valores = new ArrayList<>();
+        
+        System.out.println("Passou PreenchimentoInicialBD POST");
 
         valores.add(ControleTag.listarTags());
         valores.add(ControleSituacao.listarSituacoes());
         valores.add(ControleCategoria.listarCategorias());
+        
+        System.out.println("Passou Preenchimento: " + valores.size());
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
