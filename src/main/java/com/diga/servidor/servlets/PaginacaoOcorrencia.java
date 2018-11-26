@@ -9,6 +9,7 @@ import com.diga.servidor.controle.ControleOcorrencia;
 import com.diga.servidor.modelo.beans.Ocorrencia;
 import com.diga.servidor.modelo.beans.Usuario;
 import com.diga.servidor.modelo.persistencia.UsuarioDAO;
+import com.diga.servidor.utils.GsonBuilderUtil;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +50,7 @@ public class PaginacaoOcorrencia extends HttpServlet {
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().println(new Gson().toJson(ocorrencias));
+            response.getWriter().println(GsonBuilderUtil.constroiGsonComData("yyyy-MM-dd HH:mm:ss").toJson(ocorrencias));
         } else {
             response.setHeader("auth", "0");
 

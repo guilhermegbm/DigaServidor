@@ -24,11 +24,11 @@ import com.diga.servidor.utils.GsonBuilderUtil;
  *
  * @author Guilherme
  */
-@WebServlet(name = "PesquisaOcorrencia", urlPatterns = {"/diga_api/PesquisaOcorrencia"}, initParams = {
-    @WebInitParam(name = "query", value = "")
-    , @WebInitParam(name = "nomeUsuario", value = "")
-    , @WebInitParam(name = "senha", value = "")})
-public class PesquisaOcorrencia extends HttpServlet {
+@WebServlet(name = "PesquisaOcorrenciaPorTexto", urlPatterns = {"/diga_api/PesquisaOcorrenciaPorTexto"}, initParams = {
+    @WebInitParam(name = "nomeUsuario", value = "")
+    , @WebInitParam(name = "senha", value = "")
+    , @WebInitParam(name = "textoPesquisar", value = "")})
+public class PesquisaOcorrenciaPorTexto extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -37,11 +37,8 @@ public class PesquisaOcorrencia extends HttpServlet {
         if (UsuarioDAO.autenticaUsuario(request.getParameter("nomeUsuario"), request.getParameter("senha"))) {
             Usuario u = UsuarioDAO.listarUsuarioPorNomeUsuarioESenha(request.getParameter("nomeUsuario"), request.getParameter("senha"));
             response.setHeader("auth", "1");
-
-            String query = request.getParameter("query");
-            System.out.println("Query: (POST)" + query);
-
-            List<Ocorrencia> ocorrencias = ControleOcorrencia.pesquisaOcorrencia(query, u.getCodigo());
+            
+            List<Ocorrencia> ocorrencias = ControleOcorrencia.listarOcorrenciasPorTextoPesquisa(u.getCodigo(), request.getParameter("textoPesquisar"));
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");

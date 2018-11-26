@@ -7,8 +7,6 @@ package com.diga.servidor.servlets;
 
 import com.diga.servidor.controle.ControleOcorrencia;
 import com.diga.servidor.controle.ControleUsuario;
-import com.diga.servidor.modelo.beans.UsuarioCurteOcorrencia;
-import com.google.gson.Gson;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;

@@ -6,11 +6,9 @@
 package com.diga.servidor.servlets;
 
 import com.diga.servidor.controle.ControleOcorrencia;
-import com.diga.servidor.modelo.beans.Ocorrencia;
 import com.diga.servidor.modelo.persistencia.UsuarioDAO;
-import com.google.gson.Gson;
+import com.diga.servidor.utils.GsonBuilderUtil;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.annotation.WebInitParam;
@@ -44,7 +42,7 @@ public class PegaDadosPorCodigo extends HttpServlet {
             
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().println(new Gson().toJson(ControleOcorrencia.pegaDadosPorCodigo(Integer.parseInt(request.getParameter("codigoOcorrencia")), usuCodigo)));
+            response.getWriter().println(GsonBuilderUtil.constroiGsonComData("yyyy-MM-dd HH:mm:ss").toJson(ControleOcorrencia.pegaDadosPorCodigo(Integer.parseInt(request.getParameter("codigoOcorrencia")), usuCodigo)));
         } else {
             response.setHeader("auth", "0");
         }

@@ -42,6 +42,10 @@ public class ControleOcorrencia {
     public static List<Ocorrencia> listarOcorrenciasPorPaginacao(int usuCodigo, int pagina, int rowsPorPagina) {
         return OcorrenciaDAO.listarOcorrenciasPorPaginacao(usuCodigo, pagina, rowsPorPagina);
     }
+    
+    public static List<Ocorrencia> listarOcorrenciasPorTextoPesquisa (int usuCodigo, String textoPesquisar) {
+        return OcorrenciaDAO.listarOcorrenciasPorTextoPesquisa(usuCodigo, textoPesquisar);
+    }
 
     public static String curteOcorrencia(UsuarioCurteOcorrencia uso) {
         return OcorrenciaDAO.curteOcorrencia(uso);

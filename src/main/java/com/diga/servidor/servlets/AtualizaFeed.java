@@ -7,14 +7,8 @@ package com.diga.servidor.servlets;
 
 import com.diga.servidor.controle.ControleOcorrencia;
 import com.diga.servidor.controle.ControleUsuario;
-import com.google.gson.Gson;
+import com.diga.servidor.utils.GsonBuilderUtil;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.annotation.WebInitParam;
@@ -34,12 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 public class AtualizaFeed extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
-
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         if (ControleUsuario.autenticaUsuario(request.getParameter("nomeUsuario"), request.getParameter("senha"))) {
@@ -47,7 +35,7 @@ public class AtualizaFeed extends HttpServlet {
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().println(new Gson().toJson(ControleOcorrencia.atualizaFeed(request.getParameter("dataInicial"), Integer.parseInt(request.getParameter("usuCodigo")))));
+            response.getWriter().println(GsonBuilderUtil.constroiGsonComData("yyyy-MM-dd HH:mm:ss").toJson(ControleOcorrencia.atualizaFeed(request.getParameter("dataInicial"), Integer.parseInt(request.getParameter("usuCodigo")))));
         }
     }
 

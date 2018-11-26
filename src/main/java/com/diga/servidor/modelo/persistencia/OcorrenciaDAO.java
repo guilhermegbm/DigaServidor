@@ -93,40 +93,7 @@ public class OcorrenciaDAO {
             }
             rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                Ocorrencia o = new Ocorrencia();
-                o.setCodigo(rs.getInt(1));
-                o.setTitulo(rs.getString(2));
-                o.setDescricao(rs.getString(3));
-                o.setLatitude(rs.getDouble(4));
-                o.setLongitude(rs.getDouble(5));
-                o.setEndereco(rs.getString(6));
-                
-                Blob fotoOcorrencia = rs.getBlob(7);
-                o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
-                
-                o.setDataPostagem(rs.getDate(8));
-                o.setDataResolvida(rs.getDate(9));
-                
-                Blob fotoResolvida = rs.getBlob(10);
-                if (fotoResolvida != null ){
-                    o.setFotoResolvida(Base64.getEncoder().encodeToString(fotoResolvida.getBytes(1, (int) fotoResolvida.length())));
-                }
-                
-                o.setResolvida(rs.getBoolean(11));
-                o.setNumCurtidas(rs.getInt(12));
-                o.setNumReports(rs.getInt(13));
-                o.setCategoria(rs.getInt(14));
-                o.setSituacao(rs.getInt(15));
-                o.setUsuario(rs.getInt(16));
-                
-                o.setTags(TagDAO.listarTagsPorOcorrencia(rs.getInt(1)));
-                
-                o.setUsuarioAtualCurtiu(OcorrenciaDAO.usuarioAtualCurtiu(rs.getInt(1), usuCodigo));
-                o.setUsuarioAtualReportou(OcorrenciaDAO.usuarioAtualReportou(rs.getInt(1), usuCodigo));
-
-                l.add(o);
-            }
+            l = transformaResultSetEmLista(rs, usuCodigo);
             
         } catch (SQLException e) {
             System.out.println("Erro ao conectar bd: " + e.getLocalizedMessage());
@@ -148,6 +115,36 @@ public class OcorrenciaDAO {
         try {
             conn = DBConnection.getConnection();
             
+            /*if (textoPesquisar.equals("")){
+                stmt = conn.prepareStatement("select * " +
+                    "from ocorrencia " +
+                    "order by ocoDataPostagem DESC " +
+                    "LIMIT ?,?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                
+                // "Hints" para o statement:
+                stmt.setFetchSize(rowsPorPagina);
+                stmt.setMaxRows(rowsPorPagina);
+
+                stmt.setInt(1, ((pagina-1) * rowsPorPagina));
+                stmt.setInt(2, rowsPorPagina);
+            } else {
+                stmt = conn.prepareStatement("select * " +
+                    "from ocorrencia " +
+                    "where ocoTitulo like '%?%' " +
+                    "or ocoDescricao like '%?%' " +
+                    "order by ocoDataPostagem DESC " +
+                    "LIMIT ?,?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                
+                // "Hints" para o statement:
+                stmt.setFetchSize(rowsPorPagina);
+                stmt.setMaxRows(rowsPorPagina);
+
+                stmt.setString(1, textoPesquisar);
+                stmt.setString(2, textoPesquisar);
+                stmt.setInt(3, ((pagina-1) * rowsPorPagina));
+                stmt.setInt(4, rowsPorPagina);
+            }*/
+            
             stmt = conn.prepareStatement("select * " +
                     "from ocorrencia " +
                     "order by ocoDataPostagem DESC " +
@@ -161,45 +158,43 @@ public class OcorrenciaDAO {
             stmt.setInt(2, rowsPorPagina);
             rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                Ocorrencia o = new Ocorrencia();
-                o.setCodigo(rs.getInt(1));
-                o.setTitulo(rs.getString(2));
-                o.setDescricao(rs.getString(3));
-                o.setLatitude(rs.getDouble(4));
-                o.setLongitude(rs.getDouble(5));
-                o.setEndereco(rs.getString(6));
-                
-                Blob fotoOcorrencia = rs.getBlob(7);
-                o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
-                
-                o.setDataPostagem(rs.getDate(8));
-                o.setDataResolvida(rs.getDate(9));
-                
-                Blob fotoResolvida = rs.getBlob(10);
-                if (fotoResolvida != null ){
-                    o.setFotoResolvida(Base64.getEncoder().encodeToString(fotoResolvida.getBytes(1, (int) fotoResolvida.length())));
-                }
-                
-                o.setResolvida(rs.getBoolean(11));
-                //o.setNumCurtidas(rs.getInt(12));
-                //o.setNumReports(rs.getInt(13));
-                o.setNumCurtidas(OcorrenciaDAO.pegaQtdeCurtidas(o.getCodigo()));
-                o.setNumReports(OcorrenciaDAO.pegaQtdeReports(o.getCodigo()));
-                o.setCategoria(rs.getInt(14));
-                o.setSituacao(rs.getInt(15));
-                o.setUsuario(rs.getInt(16));
-                
-                o.setTags(TagDAO.listarTagsPorOcorrencia(rs.getInt(1)));
-                
-                o.setUsuarioAtualCurtiu(OcorrenciaDAO.usuarioAtualCurtiu(rs.getInt(1), usuCodigo));
-                o.setUsuarioAtualReportou(OcorrenciaDAO.usuarioAtualReportou(rs.getInt(1), usuCodigo));
-                
-                l.add(o);
-            }
+            l = transformaResultSetEmLista(rs, usuCodigo);
             
         } catch (SQLException e) {
-            System.out.println("Erro ao conectar bd: " + e.getLocalizedMessage());
+            System.out.println("listarOcorrenciasPorPaginacao: Erro ao conectar bd: " + e.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {};
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
+            try { if (conn != null) conn.close(); } catch (SQLException e) {};
+        }
+        return l;
+    }
+    
+    public static List<Ocorrencia> listarOcorrenciasPorTextoPesquisa (int usuCodigo, String textoPesquisar) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        List<Ocorrencia> l = new ArrayList<>();
+
+        try {
+            conn = DBConnection.getConnection();
+            
+            stmt = conn.prepareStatement("select * " +
+                "from ocorrencia " +
+                "where ocoTitulo like ? " +
+                "or ocoDescricao like ? " +
+                "order by ocoDataPostagem DESC");
+
+            stmt.setString(1, "%" + textoPesquisar + "%");
+            stmt.setString(2, "%" + textoPesquisar + "%");
+            
+            rs = stmt.executeQuery();
+
+            l = transformaResultSetEmLista(rs, usuCodigo);
+            
+        } catch (SQLException e) {
+            System.out.println("listarOcorrenciasPorTextoPesquisa: Erro ao conectar bd: " + e.getMessage());
         } finally {
             try { if (rs != null) rs.close(); } catch (SQLException e) {};
             try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
@@ -460,8 +455,17 @@ public class OcorrenciaDAO {
                 Blob fotoOcorrencia = rs.getBlob(7);
                 o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
                 
-                o.setDataPostagem(rs.getDate(8));
-                o.setDataResolvida(rs.getDate(9));
+                try {
+                    o.setDataPostagem(new Date(rs.getTimestamp(8).getTime()));
+                } catch (NullPointerException npe){
+                    o.setDataPostagem(null);
+                }
+                
+                try {
+                    o.setDataResolvida(new Date(rs.getTimestamp(9).getTime()));
+                } catch (NullPointerException npe){
+                    o.setDataResolvida(null);
+                }
                 
                 Blob fotoResolvida = rs.getBlob(10);
                 if (fotoResolvida != null ){
@@ -587,6 +591,22 @@ public class OcorrenciaDAO {
             
             rs = stmt.executeQuery();
 
+            l = transformaResultSetEmLista(rs, usuCodigo);
+            
+        } catch (SQLException e) {
+            System.out.println("listarOcorrenciasPorPaginacao: Erro ao conectar bd: " + e.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {};
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
+            try { if (conn != null) conn.close(); } catch (SQLException e) {};
+        }
+        return l;
+    }
+    
+    private static List<Ocorrencia> transformaResultSetEmLista (ResultSet rs, int usuCodigo) {
+        List<Ocorrencia> l = new ArrayList<>();
+        
+        try {
             while (rs.next()) {
                 Ocorrencia o = new Ocorrencia();
                 o.setCodigo(rs.getInt(1));
@@ -599,8 +619,17 @@ public class OcorrenciaDAO {
                 Blob fotoOcorrencia = rs.getBlob(7);
                 o.setFotoOcorrencia(Base64.getEncoder().encodeToString(fotoOcorrencia.getBytes(1, (int) fotoOcorrencia.length())));
                 
-                o.setDataPostagem(rs.getDate(8));
-                o.setDataResolvida(rs.getDate(9));
+                try {
+                    o.setDataPostagem(new Date(rs.getTimestamp(8).getTime()));
+                } catch (NullPointerException npe){
+                    o.setDataPostagem(null);
+                }
+                
+                try {
+                    o.setDataResolvida(new Date(rs.getTimestamp(9).getTime()));
+                } catch (NullPointerException npe){
+                    o.setDataResolvida(null);
+                }
                 
                 Blob fotoResolvida = rs.getBlob(10);
                 if (fotoResolvida != null ){
@@ -623,13 +652,8 @@ public class OcorrenciaDAO {
                 
                 l.add(o);
             }
-            
-        } catch (SQLException e) {
-            System.out.println("listarOcorrenciasPorPaginacao: Erro ao conectar bd: " + e.getMessage());
-        } finally {
-            try { if (rs != null) rs.close(); } catch (SQLException e) {};
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) {};
-            try { if (conn != null) conn.close(); } catch (SQLException e) {};
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar bd: " + ex.getLocalizedMessage());
         }
         return l;
     }
